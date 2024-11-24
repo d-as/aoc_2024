@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { pipe } from 'fp-ts/lib/function.js';
 import { Assert } from './assert.js';
 
 import {
@@ -50,10 +51,28 @@ export const getReleasedPuzzleCount = (date: Date): number =>
 export const formatDate = (date: Date): string =>
   [
     Intl.DateTimeFormat([], { weekday: 'long' }).format(date),
-    Intl.DateTimeFormat([], {
-      dateStyle: 'short',
-      timeStyle: 'short',
-    }).format(date),
+    pipe(
+      Intl.DateTimeFormat([], { dateStyle: 'short' }).formatToParts(date),
+      parts => {
+        type PartType = 'day' | 'month' | 'year';
+
+        const partTypes: Record<PartType, number> = {
+          day: 1,
+          month: 2,
+          year: 3,
+        };
+
+        return parts
+          .filter(part => part.type in partTypes)
+          .sort(
+            (a, b) =>
+              partTypes[b.type as PartType] - partTypes[a.type as PartType],
+          )
+          .map(part => part.value)
+          .join('/');
+      },
+    ),
+    Intl.DateTimeFormat([], { timeStyle: 'short' }).format(date),
   ].join(' ');
 
 export const getTimeText = (value: number, text: string): string | undefined =>
@@ -75,12 +94,15 @@ export const getNextPuzzleText = (
   const timeToNextPuzzle = nextRelease.getTime() - date.getTime();
 
   const days = Math.floor(timeToNextPuzzle / DAY_MILLISECONDS);
+
   const hours = Math.floor(
     (timeToNextPuzzle % DAY_MILLISECONDS) / HOUR_MILLISECONDS,
   );
+
   const minutes = Math.floor(
     (timeToNextPuzzle % HOUR_MILLISECONDS) / MINUTE_MILLISECONDS,
   );
+
   const seconds = Math.floor(
     (timeToNextPuzzle % MINUTE_MILLISECONDS) / SECOND_MILLISECONDS,
   );
@@ -133,6 +155,7 @@ export const first = <T>(items?: T[]): T | undefined => {
   if (!items) {
     return undefined;
   }
+
   const [value] = items;
   return value;
 };
