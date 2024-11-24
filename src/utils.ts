@@ -136,6 +136,9 @@ export const getDayFromFilename = (filename: string): number => {
   return Number(day);
 };
 
+export const missingInputMessage = (filename: string): string =>
+  `Missing input file ${filename}`;
+
 export const getInputLines = (
   importMeta: ImportMeta,
   skipEmptyLines = true,
@@ -145,7 +148,7 @@ export const getInputLines = (
   const inputPath = path.join(INPUT_PATH, inputFile);
 
   if (!fs.existsSync(inputPath)) {
-    console.error(`Missing input file ${inputFile}`);
+    console.error(missingInputMessage(inputFile));
     return [];
   }
 

@@ -173,15 +173,15 @@ const runLatestSolution = async (allowRetry = true): Promise<void> => {
         console.error(data.toString());
       });
     } else {
+      const missingInputMessage = U.missingInputMessage(inputFile);
+
       if (allowRetry) {
-        console.error(
-          `Missing input file ${inputFile}, trying again in 1 second`,
-        );
+        console.error(`${missingInputMessage}, trying again in 1 second`);
 
         await U.sleep(SECOND_MILLISECONDS);
         runLatestSolution(false);
       } else {
-        console.error(`Missing input file ${inputFile}`);
+        console.error(missingInputMessage);
       }
     }
   } else {
