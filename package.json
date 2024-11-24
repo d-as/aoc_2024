@@ -5,7 +5,8 @@
   "main": "src/index.ts",
   "scripts": {
     "start": "tsx --env-file=.env src/index.ts",
-    "watch": "tsx watch --env-file=.env src/index.ts"
+    "watch": "tsx --env-file=.env src/index.ts --watch",
+    "help": "tsx --env-file=.env src/index.ts --help"
   },
   "dependencies": {
     "fp-ts": "^2.16.9",

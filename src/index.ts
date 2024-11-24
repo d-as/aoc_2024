@@ -25,20 +25,29 @@ if (!SESSION_COOKIE) {
 const currentDate = new Date();
 const currentYear = U.getYear(currentDate);
 
-const argv = yargs(hideBin(process.argv))
+const { year, watch, clear } = yargs(hideBin(process.argv))
+  .version(false)
   .option('year', {
     alias: 'y',
     type: 'number',
     default: currentYear,
+    description: 'Advent of Code year',
   })
   .option('watch', {
     alias: 'w',
     type: 'boolean',
     default: false,
+    description: 'Enables watch mode',
+  })
+  .option('clear', {
+    alias: 'c',
+    type: 'boolean',
+    default: true,
+    description: 'Clears the screen on rerun in watch mode',
   })
   .parseSync();
 
-const year = Assert.validYear(argv.year);
+Assert.validYear(year);
 
 const releasedPuzzleCount = U.getReleasedPuzzleCount(
   year < currentYear ? new Date(`${year}-12-31`) : currentDate,
@@ -150,7 +159,8 @@ const runLatestSolution = async (allowRetry = true): Promise<void> => {
       const solutionProcess = spawn(
         'tsx',
         [
-          argv.watch ? 'watch' : undefined,
+          watch ? 'watch' : undefined,
+          `--clear-screen=${clear}`,
           path.join(SOLUTIONS_PATH, latestSolution),
         ].filter(U.isValue),
         {
