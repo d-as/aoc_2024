@@ -1,9 +1,10 @@
 import * as U from './utils.js';
-import dotenv from 'dotenv';
 import fetch from 'node-fetch';
 import fs from 'fs';
 import path from 'path';
-import { exec } from 'child_process';
+import yargs from 'yargs';
+import { hideBin } from 'yargs/helpers';
+import { spawn } from 'child_process';
 import { Assert } from './assert.js';
 
 import {
@@ -15,20 +16,29 @@ import {
   SOLUTION_TEMPLATE_PATH,
 } from './constants.js';
 
-dotenv.config();
-
 let { SESSION_COOKIE } = process.env;
 
 if (!SESSION_COOKIE) {
   console.log('Missing SESSION_COOKIE in .env');
 }
 
-const [yearArg] = process.argv.slice(2, 3).map(Number);
-
 const currentDate = new Date();
 const currentYear = U.getYear(currentDate);
 
-const year = Assert.validYear(U.isValue(yearArg) ? yearArg : currentYear);
+const argv = yargs(hideBin(process.argv))
+  .option('year', {
+    alias: 'y',
+    type: 'number',
+    default: currentYear,
+  })
+  .option('watch', {
+    alias: 'w',
+    type: 'boolean',
+    default: false,
+  })
+  .parseSync();
+
+const year = Assert.validYear(argv.year);
 
 const releasedPuzzleCount = U.getReleasedPuzzleCount(
   year < currentYear ? new Date(`${year}-12-31`) : currentDate,
@@ -137,18 +147,25 @@ const runLatestSolution = async (allowRetry = true): Promise<void> => {
     if (inputFileExists) {
       console.log(`Executing ${latestSolution}:\n`);
 
-      exec(
-        `tsx ${path.join(SOLUTIONS_PATH, latestSolution)}`,
-        (error, stdout, stderr) => {
-          if (error) {
-            return console.error(error);
-          } else if (stdout) {
-            console.log(stdout);
-          } else if (stderr) {
-            console.error(stderr);
-          }
+      const solutionProcess = spawn(
+        'tsx',
+        [
+          argv.watch ? 'watch' : undefined,
+          path.join(SOLUTIONS_PATH, latestSolution),
+        ].filter(U.isValue),
+        {
+          stdio: 'pipe',
+          shell: true,
         },
       );
+
+      solutionProcess.stdout.on('data', data => {
+        console.log(data.toString());
+      });
+
+      solutionProcess.stderr.on('data', data => {
+        console.error(data.toString());
+      });
     } else {
       if (allowRetry) {
         console.log('Missing input file, trying again in 1 second');

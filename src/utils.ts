@@ -195,7 +195,7 @@ export const matchPatterns = (
   });
 };
 
-export const isValue = <T>(value?: T): boolean =>
+export const isValue = <T>(value?: T): value is NonNullable<T> =>
   value !== undefined && value !== null;
 
 export const sleep = (ms: number): Promise<void> =>
