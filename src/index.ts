@@ -146,12 +146,8 @@ const runLatestSolution = async (allowRetry = true): Promise<void> => {
     .sort(sortByFileName);
 
   if (latestSolution) {
-    const inputFileExists = fs.existsSync(
-      path.join(
-        INPUT_PATH,
-        U.getInputFileName(U.getDayFromFilename(latestSolution)),
-      ),
-    );
+    const inputFile = U.getInputFileName(U.getDayFromFilename(latestSolution));
+    const inputFileExists = fs.existsSync(path.join(INPUT_PATH, inputFile));
 
     if (inputFileExists) {
       console.log(`Executing ${latestSolution}:\n`);
@@ -178,11 +174,14 @@ const runLatestSolution = async (allowRetry = true): Promise<void> => {
       });
     } else {
       if (allowRetry) {
-        console.log('Missing input file, trying again in 1 second');
+        console.error(
+          `Missing input file ${inputFile}, trying again in 1 second`,
+        );
+
         await U.sleep(SECOND_MILLISECONDS);
         runLatestSolution(false);
       } else {
-        console.log('Missing input file');
+        console.error(`Missing input file ${inputFile}`);
       }
     }
   } else {

@@ -1,5 +1,5 @@
-import { getInputLines, logResults } from '@src/utils.js';
+import * as U from '@src/utils.js';
 
-const input = getInputLines(import.meta);
+const input = U.getInputLines(import.meta);
 
-logResults(input.length);
+U.logResults(input.length);

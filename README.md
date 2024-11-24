@@ -8,17 +8,13 @@ Fetch inputs for current year and run the latest solution:
 
 `npm start`
 
+Enable watch mode:
+
+`npm run watch`
+
 Get list of all arguments:
 
 `npm run help`
-
-Enable watch mode:
-
-```
-npm run watch
-npm start -- --watch
-npm start -- -w
-```
 
 Fetch inputs for another year:
 

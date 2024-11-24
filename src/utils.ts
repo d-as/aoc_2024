@@ -141,11 +141,13 @@ export const getInputLines = (
   skipEmptyLines = true,
 ): string[] => {
   const filename = fileURLToPath(importMeta.url);
+  const inputFile = getInputFileName(getDayFromFilename(filename));
+  const inputPath = path.join(INPUT_PATH, inputFile);
 
-  const inputPath = path.join(
-    INPUT_PATH,
-    getInputFileName(getDayFromFilename(filename)),
-  );
+  if (!fs.existsSync(inputPath)) {
+    console.error(`Missing input file ${inputFile}`);
+    return [];
+  }
 
   const lines = fs.readFileSync(inputPath).toString().split('\n');
   return skipEmptyLines ? lines.filter(line => line) : lines;
