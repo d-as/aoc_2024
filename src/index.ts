@@ -25,7 +25,7 @@ if (!SESSION_COOKIE) {
 const currentDate = new Date();
 const currentYear = U.getYear(currentDate);
 
-const { year, watch, clear } = yargs(hideBin(process.argv))
+const { year, watch, create } = yargs(hideBin(process.argv))
   .version(false)
   .option('year', {
     alias: 'y',
@@ -39,11 +39,11 @@ const { year, watch, clear } = yargs(hideBin(process.argv))
     default: false,
     description: 'Enables watch mode',
   })
-  .option('clear', {
+  .option('create', {
     alias: 'c',
     type: 'boolean',
     default: true,
-    description: 'Clears the screen on rerun in watch mode',
+    description: 'Create missing solution files',
   })
   .parseSync();
 
@@ -126,15 +126,17 @@ const runLatestSolution = async (allowRetry = true): Promise<void> => {
   if (solutionFilesToBeCreated.length > 0 && year === currentYear) {
     const template = fs.readFileSync(SOLUTION_TEMPLATE_PATH);
 
-    console.log(
-      `Creating ${solutionFilesToBeCreated.length} solution file${U.plural(
-        solutionFilesToBeCreated,
-      )}`,
-    );
+    if (create) {
+      console.log(
+        `Creating ${solutionFilesToBeCreated.length} solution file${U.plural(
+          solutionFilesToBeCreated,
+        )}`,
+      );
 
-    solutionFilesToBeCreated.forEach(solution =>
-      fs.writeFileSync(path.join(SOLUTIONS_PATH, solution), template),
-    );
+      solutionFilesToBeCreated.forEach(solution =>
+        fs.writeFileSync(path.join(SOLUTIONS_PATH, solution), template),
+      );
+    }
   }
 
   const sortByFileName = (a: string, b: string) =>
@@ -156,7 +158,6 @@ const runLatestSolution = async (allowRetry = true): Promise<void> => {
         'tsx',
         [
           watch ? 'watch' : undefined,
-          `--clear-screen=${clear}`,
           path.join(SOLUTIONS_PATH, latestSolution),
         ].filter(U.isValue),
         {

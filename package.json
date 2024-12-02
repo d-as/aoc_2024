@@ -6,6 +6,7 @@
   "scripts": {
     "start": "tsx --env-file=.env src/index.ts",
     "watch": "tsx watch --env-file=.env src/index.ts --watch",
+    "watch-no-create": "tsx watch --env-file=.env src/index.ts --watch --create=false",
     "help": "tsx --env-file=.env src/index.ts --help"
   },
   "dependencies": {
