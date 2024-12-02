@@ -22,4 +22,8 @@ const distances = list1.map((n, i) => Math.abs(n - list2[i]));
 
 const totalDistance = distances.reduce((a, b) => a + b);
 
-U.logResults(totalDistance);
+const similarity = list1
+  .map(n => n * list2.filter(m => m === n).length)
+  .reduce((a, b) => a + b);
+
+U.logResults(totalDistance, similarity);
